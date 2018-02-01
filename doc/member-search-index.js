@@ -1,0 +1,1 @@
+memberSearchIndex = [{"p":"estimAPI","c":"State","l":"getBattery()"},{"p":"estimAPI","c":"State","l":"getJoinedChannels()"},{"p":"estimAPI","c":"State","l":"getPower()"},{"p":"estimAPI","c":"State","l":"getVersion()"}]
