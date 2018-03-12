@@ -12,7 +12,7 @@ class ConnectionTest extends Setup {
 
 	@Test
 	void SecondInit() {
-		assertTrue(twoB.initDevice(), "Can't establish connection !");
+		assertTrue(twoB.initDevice(true), "Can't establish connection !");
 	}
 	
 	@Test

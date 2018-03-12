@@ -17,6 +17,7 @@ import estimAPI.Mode;
 public class TwoB implements EstimAPI{
 
 	private static final int BAUD_RATE = 9600;
+	private static final int BAUD_RATE_HIGHSPEED = 57600;
 	
 	private final String device;
 	private SerialPort serialPort = null;
@@ -31,13 +32,13 @@ public class TwoB implements EstimAPI{
 	}
 	
 	@Override
-	public boolean initDevice() {
+	public boolean initDevice(boolean enableHighSpeed) {	//HighSpeed Mode is available since version 2.110B
 		if (this.serialPort != null && this.serialPort.isOpen() && this.outStream != null && this.inStream != null) {
 			return true;
 		}
 		this.serialPort = SerialPort.getCommPort(device);
 		this.serialPort.setComPortParameters(BAUD_RATE, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY); 		//Sets the SerialPort in the right state
-		this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
+		this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING | SerialPort.TIMEOUT_WRITE_BLOCKING, 100, 0);
 		this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
 		if (!this.serialPort.openPort()) {
 			return false;
@@ -54,7 +55,12 @@ public class TwoB implements EstimAPI{
 
 		this.state = new TwoBState(TwoBMode.PULSE, channels, -1, "error", -1);
 		
-		return true;
+		if (enableHighSpeed) {
+			this.enableHighSpeedState();
+		}
+				
+		return this.sendCommand("");	//Updates the TwoBState
+
 	}
 
 	@Override
@@ -110,12 +116,12 @@ public class TwoB implements EstimAPI{
 	
 	@Override
 	public boolean linkChannels() {
-		return this.sendCommand("J");
+		return this.sendCommand("J1");
 	}
 
 	@Override
 	public boolean unlinkChannels() {
-		return this.sendCommand("U");
+		return this.sendCommand("J0");
 	}	
 	
 	@Override
@@ -159,8 +165,10 @@ public class TwoB implements EstimAPI{
 	private boolean send(String msg) {
 		msg+="\n\r";
 		try {
+			System.out.println("SENDING");
 			this.outStream.write(msg.getBytes("UTF-8"));
 			TimeUnit.MILLISECONDS.sleep(100);
+			System.out.println("SEND");
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return false;
@@ -172,7 +180,9 @@ public class TwoB implements EstimAPI{
 		String reply = "";
 		byte[] b = new byte[1000];
 		try {
+			System.out.println("RECEIVE");
 			this.inStream.read(b);
+			System.out.println("RECEIVED");
 			reply = new String(b);
 			System.out.println(reply);
 		} catch (IOException e) {
@@ -185,5 +195,19 @@ public class TwoB implements EstimAPI{
 		String reply = this.recv();
 		this.getState().parseReply(reply);
 	}
-	
+	/*
+	 * Check what baud rate the 2B is actually using and changes it to HighSpeed if needed
+	 */
+	private boolean enableHighSpeedState() {		
+		this.send("Z");
+		
+		String reply = this.recv();
+		
+		if (!reply.contains(":") && this.serialPort.getBaudRate() != BAUD_RATE_HIGHSPEED) {
+			this.serialPort.setComPortParameters(BAUD_RATE_HIGHSPEED, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
+		}
+		
+		return true;
+		
+	}
 }

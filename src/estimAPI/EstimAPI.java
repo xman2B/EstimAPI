@@ -7,7 +7,7 @@ public interface EstimAPI {
 	/**
 	 * Initialize the estim device
 	 */
-	public boolean initDevice();
+	public boolean initDevice(boolean highspeed);
 
 	/**
 	 * Disconnect the device

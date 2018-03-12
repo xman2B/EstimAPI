@@ -8,7 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import devices.TwoB.TwoB;
 import estimAPI.EstimAPI;
 
-public class Setup {
+public class SetupHighSpeed {
 
 	static final String DEVICE = "/dev/ttyUSB0";
 

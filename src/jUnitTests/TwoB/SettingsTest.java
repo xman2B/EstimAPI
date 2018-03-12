@@ -30,7 +30,7 @@ class SettingsTest extends Setup {
 	
 	@Test
 	void KillTest() {
-		twoB.setMode(TwoBMode.THROB);
+		twoB.setMode(TwoBMode.BOUNCE);
 		twoB.setChannelOutPut(TwoBChannel.A, 4);
 		twoB.setChannelOutPut(TwoBChannel.B, 2);
 		twoB.setChannelOutPut(TwoBChannel.C, 48);
@@ -41,7 +41,7 @@ class SettingsTest extends Setup {
 		assertEquals(0, channels.get(1).getValue());
 		assertEquals(48, channels.get(2).getValue());
 		assertEquals(52, channels.get(3).getValue());
-		assertEquals(TwoBMode.THROB, twoB.getMode());
+		assertEquals(TwoBMode.BOUNCE, twoB.getMode());
 		
 	}
 
@@ -52,13 +52,13 @@ class SettingsTest extends Setup {
 		twoB.setChannelOutPut(TwoBChannel.A, 4);
 		twoB.setChannelOutPut(TwoBChannel.B, 2);
 		twoB.setChannelOutPut(TwoBChannel.C, 48);
-		twoB.setChannelOutPut(TwoBChannel.D, 52);
+		//twoB.setChannelOutPut(TwoBChannel.D, 52);
 		assertTrue(twoB.reset(), "Can't send command !");
 		List<Channel> channels = twoB.getChannels();
 		assertEquals(0, channels.get(0).getValue());
 		assertEquals(0, channels.get(1).getValue());
 		assertEquals(50, channels.get(2).getValue());
-		assertEquals(50, channels.get(3).getValue());
+		//assertEquals(50, channels.get(3).getValue());
 		assertEquals(TwoBMode.PULSE, twoB.getMode());
 	}
 	
