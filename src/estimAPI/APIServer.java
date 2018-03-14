@@ -1,53 +1,103 @@
 package estimAPI;
 
-import java.io.IOException;
-import java.util.List;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Handler;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletHandler;
-import org.junit.internal.runners.InitializationError;
 
 import devices.TwoB.TwoB;
 
-
-
 public class APIServer {
 
-	private final static String DEVICE = "/dev/ttyUSB0";
-	private static EstimAPI api = new TwoB(DEVICE);
-	
+
 	public static void main(String[] args) throws Exception {
-		// Init Device
-		if (!api.initDevice(true)) {
-			throw new Exception("Can't detect a device");
+
+		Options options = new Options();
+
+		// Command Line Options
+		options.addOption("p", "port", true, "The port to listen on");
+		options.addOption("host", true, "The host adress");
+		options.addOption("d", "device", true, "The path to the device");
+		options.addOption("f", "fast", false, "Use the HighSpeed Mode");
+		options.addOption("h", "help", false, "Display the help message");
+		options.addOption("v", "version", false, "Show the version number");
+
+		// automatically generate the help statement
+		HelpFormatter formatter = new HelpFormatter();
+
+		int port = 8080;
+		String device = "/dev/ttyUSB0";
+		String host = "localhost";
+		boolean HighSpeedMode = false;
+
+		// create the command line parser
+		CommandLineParser parser = new DefaultParser();
+
+		try {
+			// parse the command line arguments
+			CommandLine line = parser.parse(options, args);
+
+			if (line.hasOption("help")) {
+				formatter.printHelp("APIServer", options);
+				System.exit(0);
+			}
+			if (line.hasOption("version")) {
+				System.out.println("Bleeding Edge !");
+				System.out.println("Don't expect anything to work, but be happy if it works :-)");
+				System.exit(0);
+			}
+			if (line.hasOption("port")) {
+				port = Integer.parseInt(line.getOptionValue("port"));
+			}
+			if (line.hasOption("device")) {
+				device = line.getOptionValue("device");
+			}
+			if (line.hasOption("host")) {
+				host = line.getOptionValue("host");
+			}
+			if (line.hasOption("fast")) {
+				HighSpeedMode = true;
+			}
+		} catch (ParseException exp) {
+			System.out.println("Unexpected exception:" + exp.getMessage());
+			System.exit(1);
 		}
 		
-		 // The Server
-        Server server = new Server();
+		//Create the TwoB Instance
+		EstimAPI api = new TwoB(device);
 
-        // HTTP connector
-        ServerConnector http = new ServerConnector(server);
-        http.setHost("localhost");
-        http.setPort(8080);
-        http.setIdleTimeout(30000);
+		// Init Device
+		if (!api.initDevice(HighSpeedMode)) {
+			throw new Exception("Can't detect a device");
+		}
 
-        // Set the connector
-        server.addConnector(http);
+		// The Server
+		Server server = new Server();
 
-        // Set a handler
-        server.setHandler(new ConnectionHandler(api));
+		// HTTP connector
+		ServerConnector http = new ServerConnector(server);
+		http.setHost(host);
+		http.setPort(port);
+		http.setIdleTimeout(30000);
 
-        // Start the server
-        try {
+		// Set the connector
+		server.addConnector(http);
+
+		// Set a handler
+		server.setHandler(new ConnectionHandler(api));
+
+		// Start the server
+		try {
 			server.start();
-	        server.join();
+			server.join();
+			System.out.println("Server is running !");
+			System.out.println("Use http://" + host + ":" + port + "/ to connect");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
