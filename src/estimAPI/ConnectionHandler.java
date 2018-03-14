@@ -8,9 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import devices.TwoB.TwoBChannel;
@@ -42,8 +40,7 @@ public class ConnectionHandler extends AbstractHandler {
         Map<String, String[]> parameters  = request.getParameterMap();
         
         System.out.println(parameters);
-        System.out.println(parameters.keySet());
-        System.out.println(parameters.values().iterator().next().toString());
+        
         for (String parameter: parameters.keySet()) {
         	String[] values = parameters.get(parameter);
         	switch (parameter) {

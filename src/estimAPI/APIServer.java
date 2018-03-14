@@ -95,9 +95,9 @@ public class APIServer {
 		// Start the server
 		try {
 			server.start();
-			server.join();
 			System.out.println("Server is running !");
 			System.out.println("Use http://" + host + ":" + port + "/ to connect");
+			server.join();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
