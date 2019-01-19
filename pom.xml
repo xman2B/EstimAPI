@@ -10,7 +10,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.7.0</version>
         <configuration>
-          <release>9</release>
+          <release>11</release>
         </configuration>
       </plugin>
     </plugins>
@@ -24,12 +24,12 @@
   	<dependency>
   		<groupId>org.eclipse.jetty</groupId>
   		<artifactId>jetty-server</artifactId>
-  		<version>9.4.8.v20171121</version>
+  		<version>9.4.14.v20181114</version>
   	</dependency>
   	<dependency>
   		<groupId>org.eclipse.jetty</groupId>
   		<artifactId>jetty-servlet</artifactId>
-  		<version>9.4.8.v20171121</version>
+  		<version>9.4.14.v20181114</version>
   	</dependency>
   	<dependency>
   		<groupId>commons-cli</groupId>

@@ -11,8 +11,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import devices.TwoB.TwoBChannel;
-import devices.TwoB.TwoBMode;
 
 public class ConnectionHandler extends AbstractHandler {
 
@@ -35,85 +33,13 @@ public class ConnectionHandler extends AbstractHandler {
         
         PrintWriter out = response.getWriter();
         
-        boolean error = false;
     	String answer = "";
         Map<String, String[]> parameters  = request.getParameterMap();
         
         System.out.println(parameters);
         
-        for (String parameter: parameters.keySet()) {
-        	String[] values = parameters.get(parameter);
-        	switch (parameter) {
-			case "initDevice":
-				if ("true".equals(values[0]))
-					api.initDevice(true);
-				else {
-					api.initDevice(false);
-				}
-				break;
-			case "disconnectDevice":
-				api.disconnectDevice();
-				break;
-			case "setMode":
-				error = true;
-				for (Mode mode: TwoBMode.values()) {
-					if (mode.toString().equals(values[0])) {
-						api.setMode(mode);
-						error = false;
-						break;
-					}
-				}
-				break;
-			case "setChannelOutputA":
-				api.setChannelOutPut(TwoBChannel.A, Integer.parseInt(values[0]));
-				break;
-			case "setChannelOutputB":
-				api.setChannelOutPut(TwoBChannel.B, Integer.parseInt(values[0]));
-				break;
-			case "setChannelOutputC":
-				api.setChannelOutPut(TwoBChannel.C, Integer.parseInt(values[0]));
-				break;
-			case "setChannelOutputD":
-				api.setChannelOutPut(TwoBChannel.D, Integer.parseInt(values[0]));
-				break;
-			case "linkChannels":
-				api.linkChannels();
-				break;
-			case "unlinkChannels":
-				api.unlinkChannels();
-				break;
-			case "setPowerHIGH":
-				api.setPowerHIGH();
-				break;
-			case "setPowerLOW":
-				api.setPowerLOW();
-				break;
-			case "kill":
-				api.kill();
-				break;
-			case "reset":
-				api.reset();
-				break;
-			case "getState":
-				answer += api.getState().toString();
-				break;
-			case "getMode":
-				answer += api.getMode().toString();
-				break;
-			case "getChannels":
-				answer += api.getChannels().toString();
-				break;
-			case "getAvailableModes":
-				answer += api.getAvailableModes().toString();
-				break;
-			default:
-				error = true;
-				break;
-			}
-        }
+        Boolean error = api.execute(parameters);
 
-        
-        
 
         out.println("<title>" + TITLE + "</title>");
         out.println("<b>");

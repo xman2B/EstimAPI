@@ -1,6 +1,7 @@
 package estimAPI;
 
 import java.util.List;
+import java.util.Map;
 
 public interface EstimAPI {
 
@@ -73,5 +74,15 @@ public interface EstimAPI {
 	 * Resets all channels to 0
 	 */
 	public boolean reset();
+	
+	/**
+	 * Executes the given command
+	 */
+	public boolean execute(String command);
+	
+	/**
+	 * Executes the given parameters
+	 */
+	public boolean execute(Map<String, String[]> parameters);
 
 }

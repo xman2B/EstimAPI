@@ -1554,42 +1554,14 @@ setDocument = Sizzle.setDocument = function( node ) {
 				i = 0,
 				results = context.getElementsByTagName( tag );
 
-			// Filter out possible comments
-			if ( tag === "*" ) {
-				while ( (elem = results[i++]) ) {
-					if ( elem.nodeType === 1 ) {
-						tmp.push( elem );
-					}
-				}
-
-				return tmp;
-			}
-			return results;
-		};
-
-	// Class
-	Expr.find["CLASS"] = support.getElementsByClassName && function( className, context ) {
-		if ( typeof context.getElementsByClassName !== strundefined && documentIsHTML ) {
-			return context.getElementsByClassName( className );
-		}
-	};
-
-	/* QSA/matchesSelector
-	---------------------------------------------------------------------- */
-
-	// QSA and matchesSelector support
-
-	// matchesSelector(:active) reports false when true (IE9/Opera 11.5)
-	rbuggyMatches = [];
-
-	// qSa(:focus) reports false when true (Chrome 21)
-	// We allow this because of a bug in IE8/9 that throws an error
-	// whenever `document.activeElement` is accessed on an iframe
-	// So, we allow :focus to pass through QSA all the time to avoid the IE error
-	// See http://bugs.jquery.com/ticket/13378
-	rbuggyQSA = [];
-
-	if ( (support.qsa = rnative.test( doc.querySelectorAll )) ) {
+			Ãõ(\¯¸@         °À4          À       D       "À4         8À4  €À4  pÀ4         €|À4  e       °ËÀ4   ¯ À4  @ À4                                ÿÿÿÿ                            a       @ùÀ4  @ïÀ4         0À4                        !       ð¹À4   ëÀ4  `       T       0ÈÀ4  ðìÀ4           4  ÐIÀ4         	   4                  %       Ð1À4  @À4          U               Ð
+À4            4                  ÿÿÿÿ                            ¼À4  ðÀ4   @‰L ö¾0}cOærñ¾kÂs@:ÿï? ,r¸.¤ó¾ p>…ÊïÔ¾ €Ÿ@ñÄ÷>~H ð?1       °Œ À4  @À4  0
+À4        €       d       àÒÀ4   ¯ À4   À4             V e                ÿÿÿÿ                            %       àÀ4  øÀ4  øÀ4  %       `#À4  €  À4  @       %        À4  4À4  4À4  %       À
+À4  €  À4          a      ¸À4  ÀÅÀ4                                 @       ”       Ð
+À4  Ð
+À4  Ð
+À4  Ð
+À4                      ÿ                                                         qsa = rnative.test( doc.querySelectorAll )) ) {
 		// Build QSA regex
 		// Regex strategy adopted from Diego Perini
 		assert(function( div ) {

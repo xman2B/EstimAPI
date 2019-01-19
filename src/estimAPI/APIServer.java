@@ -16,7 +16,7 @@ import devices.TwoB.TwoB;
 public class APIServer {
 
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws IllegalStateException {
 
 		Options options = new Options();
 
@@ -68,13 +68,18 @@ public class APIServer {
 			System.out.println("Unexpected exception:" + exp.getMessage());
 			System.exit(1);
 		}
-		
+
 		//Create the TwoB Instance
 		EstimAPI api = new TwoB(device);
 
-		// Init Device
-		if (!api.initDevice(HighSpeedMode)) {
-			throw new Exception("Can't detect a device");
+		// Try Init Device
+		try {
+			if (!api.initDevice(HighSpeedMode)) {
+				throw new IllegalStateException("Can't detect a device");
+			}
+		}
+		catch (IllegalStateException e) {
+			e.printStackTrace();
 		}
 
 		// The Server
