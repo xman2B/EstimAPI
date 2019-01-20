@@ -22,6 +22,9 @@ public class TwoB implements EstimAPI{
 
 	private static final int BAUD_RATE = 9600;
 	private static final int BAUD_RATE_HIGHSPEED = 57600;
+	private static final String LINUX_PATH = "/dev/ttyUSB0";
+	private static final String WINDOWS_PATH = "COM3";
+
 
 	private final String device;
 	private SerialPort serialPort = null;
@@ -33,6 +36,17 @@ public class TwoB implements EstimAPI{
 
 	public TwoB(String device) {
 		this.device = device;
+	}
+
+	public TwoB() {
+		if (System.getProperty("os.name").startsWith("Windows")) {
+			this.device = WINDOWS_PATH;
+			System.out.println("Windows detected");
+		}
+		else {
+			this.device = LINUX_PATH;
+			System.out.println("Linux detected");
+		}
 	}
 
 	public boolean isInitialized() {

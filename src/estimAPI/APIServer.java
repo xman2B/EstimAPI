@@ -32,7 +32,7 @@ public class APIServer {
 		HelpFormatter formatter = new HelpFormatter();
 
 		int port = 8080;
-		String device = "/dev/ttyUSB0";
+		String device = null;
 		String host = "localhost";
 		boolean HighSpeedMode = false;
 
@@ -69,8 +69,15 @@ public class APIServer {
 			System.exit(1);
 		}
 
-		//Create the TwoB Instance
-		EstimAPI api = new TwoB(device);
+		//Create the TwoB instance
+		EstimAPI api = null;
+		if (device == null) {
+			api = new TwoB();
+
+		}
+		else {
+			api = new TwoB(device);
+		}
 
 		// Try Init Device
 		try {

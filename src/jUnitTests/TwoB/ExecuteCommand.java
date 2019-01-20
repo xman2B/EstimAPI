@@ -9,8 +9,7 @@ import estimAPI.EstimAPI;
 
 class ExecuteCommand {
 	
-	static final String DEVICE = "/dev/ttyUSB0";
-	EstimAPI api = new TwoB(DEVICE);
+	EstimAPI api = new TwoB();
 
 	@Test
 	void executeTest() {

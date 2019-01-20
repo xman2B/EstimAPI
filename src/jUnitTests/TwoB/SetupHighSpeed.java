@@ -10,14 +10,12 @@ import estimAPI.EstimAPI;
 
 public class SetupHighSpeed {
 
-	static final String DEVICE = "/dev/ttyUSB0";
-
 	static EstimAPI twoB = null;
 	
 	
 	@BeforeAll
 	static void setUp() throws Exception {
-		twoB = new TwoB(DEVICE);
+		twoB = new TwoB();
 		assertTrue(twoB.initDevice(true), "Can't establish Connection");
 	}
 
