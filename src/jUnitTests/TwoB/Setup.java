@@ -16,7 +16,7 @@ public class Setup {
 	@BeforeAll
 	static void setUp() throws Exception {
 		twoB = new TwoB();
-		assertTrue(twoB.initDevice(true), "Can't establish Connection");
+		assertTrue(twoB.initDevice(false), "Can't establish Connection");
 	}
 
 	@AfterAll

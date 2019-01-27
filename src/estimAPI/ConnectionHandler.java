@@ -38,12 +38,12 @@ public class ConnectionHandler extends AbstractHandler {
         
         System.out.println(parameters);
         
-        Boolean error = api.execute(parameters);
+        Boolean success = api.execute(parameters);
 
 
         out.println("<title>" + TITLE + "</title>");
         out.println("<b>");
-        if (error) {
+        if (!success) {
             out.println(BODY_ERROR);
         }
         else {
