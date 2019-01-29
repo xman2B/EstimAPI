@@ -15,9 +15,11 @@ public enum TwoBMode implements Mode{
 	    MILK (9),
 	    THROB (10),
 	    THRUST (11),
-	    RANDOM (12),
-	    STEP (13),
-	    TRAINING (14);
+	    CYCLE (12),
+	    TWIST (13),
+	    RANDOM (14),
+	    STEP (15),
+	    TRAINING (16);
 	
 		//You can't set these modes yet
 		/*MICROPHONE (15),
