@@ -4,6 +4,11 @@ import java.util.List;
 import java.util.Map;
 
 public interface EstimAPI {
+	
+	/**
+	 * Initialize the estim device
+	 */
+	public boolean initDevice();
 
 	/**
 	 * Initialize the estim device

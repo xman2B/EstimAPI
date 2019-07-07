@@ -6,6 +6,7 @@ import com.fazecast.jSerialComm.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,26 +14,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-
 import estimAPI.Channel;
 import estimAPI.EstimAPI;
 import estimAPI.Mode;
 
-public class TwoB implements EstimAPI{
+public class TwoB implements EstimAPI {
 
 	private static final int BAUD_RATE = 9600;
 	private static final int BAUD_RATE_HIGHSPEED = 57600;
 	private static final String LINUX_PATH = "/dev/ttyUSB0";
 	private static final String WINDOWS_PATH = "COM3";
 
-
 	private final String device;
 	private SerialPort serialPort = null;
 	private InputStream inStream = null;
 	private OutputStream outStream = null;
 
-
 	private TwoBState state = null;
+	private boolean highSpeed = false;
 
 	public TwoB(String device) {
 		this.device = device;
@@ -42,8 +41,7 @@ public class TwoB implements EstimAPI{
 		if (System.getProperty("os.name").startsWith("Windows")) {
 			this.device = WINDOWS_PATH;
 			System.out.println("Windows detected");
-		}
-		else {
+		} else {
 			this.device = LINUX_PATH;
 			System.out.println("Linux detected");
 		}
@@ -56,22 +54,33 @@ public class TwoB implements EstimAPI{
 		return false;
 	}
 
+	@Override
+	public boolean initDevice() { // HighSpeed Mode is available since version 2.110B
+		return this.initDevice(this.highSpeed);
+	}
 
 	@Override
-	public boolean initDevice(boolean enableHighSpeed) {	//HighSpeed Mode is available since version 2.110B
-		if (this.isInitialized()) return true;
+	public boolean initDevice(boolean enableHighSpeed) { // HighSpeed Mode is available since version 2.110B
+		if (this.isInitialized()) {
+			System.out.println("Warning: TwoB is already initialized");
+			return true;
+		}
 
 		this.serialPort = SerialPort.getCommPort(device);
-		this.serialPort.setComPortParameters(BAUD_RATE, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY); 		//Sets the SerialPort in the right state
+		this.serialPort.setComPortParameters(BAUD_RATE, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY); // Sets the serial port in the right state
 		this.serialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING | SerialPort.TIMEOUT_WRITE_BLOCKING, 100, 0);
 		this.serialPort.setFlowControl(SerialPort.FLOW_CONTROL_DISABLED);
 		if (!this.serialPort.openPort()) {
-			return false;
+			this.serialPort.closePort();
+			if (!this.serialPort.openPort()) {
+				System.out.println("Warning: Cannot initialize serial port");
+				return false;
+			}
 		}
 		this.outStream = this.serialPort.getOutputStream();
 		this.inStream = this.serialPort.getInputStream();
 
-		//Sets the initial State for the 2B
+		// Sets the initial State for the 2B
 		List<TwoBChannel> channels = new ArrayList<TwoBChannel>();
 		channels.add(TwoBChannel.A);
 		channels.add(TwoBChannel.B);
@@ -84,13 +93,16 @@ public class TwoB implements EstimAPI{
 			this.enableHighSpeedState();
 		}
 
-		return this.sendCommand("");	//Updates the TwoBState
+		return this.sendCommand(""); // Updates the TwoBState
 
 	}
 
 	@Override
 	public boolean disconnectDevice() {
-		if (!this.isInitialized()) return true;
+		if (!this.isInitialized()) {
+			System.out.println("Warning: TwoB is already initialized");
+			return true;
+		}
 
 		try {
 			this.inStream.close();
@@ -120,10 +132,10 @@ public class TwoB implements EstimAPI{
 	@Override
 	public List<Mode> getAvailableModes() {
 		List<Mode> modes = new ArrayList<Mode>();
-		for(Mode m :TwoBMode.values()) {
+		for (Mode m : TwoBMode.values()) {
 			modes.add(m);
 		}
-		return  modes;
+		return modes;
 	}
 
 	@Override
@@ -144,7 +156,7 @@ public class TwoB implements EstimAPI{
 	@Override
 	public boolean unlinkChannels() {
 		return this.sendCommand("J0");
-	}	
+	}
 
 	@Override
 	public boolean setPowerHIGH() {
@@ -169,15 +181,18 @@ public class TwoB implements EstimAPI{
 	@Override
 	public List<Channel> getChannels() {
 		List<Channel> channels = new ArrayList<Channel>();
-		for (Channel c: this.getState().getChannels()) {
+		for (Channel c : this.getState().getChannels()) {
 			channels.add(c);
 		}
 		return channels;
 	}
 
-
 	private boolean sendCommand(String msg) {
-		if (!this.isInitialized()) return false;
+		if (!this.isInitialized()) {
+			System.out.println("Warning: TwoB is not initialized");
+			if (!this.initDevice(this.highSpeed))
+				return false;
+		}
 		if (this.send(msg)) {
 			this.updateState();
 			return true;
@@ -186,17 +201,17 @@ public class TwoB implements EstimAPI{
 	}
 
 	private boolean send(String msg) {
-		msg+="\n\r";
+		msg += "\n\r";
 		try {
-			System.out.println("SENDING '" + msg +"'");
+			System.out.println("SENDING '" + msg + "'");
 			this.outStream.write(msg.getBytes("UTF-8"));
 			TimeUnit.MILLISECONDS.sleep(100);
-			System.out.println("SEND '" + msg +"'");
+			System.out.println("SEND '" + msg + "'");
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return false;
 		}
-		return true;		
+		return true;
 	}
 
 	private String recv() {
@@ -218,10 +233,12 @@ public class TwoB implements EstimAPI{
 		String reply = this.recv();
 		this.getState().parseReply(reply);
 	}
+
 	/*
-	 * Check what baud rate the 2B is actually using and changes it to HighSpeed if needed
+	 * Check what baud rate the 2B is actually using and changes it to HighSpeed if
+	 * needed
 	 */
-	private boolean enableHighSpeedState() {		
+	private boolean enableHighSpeedState() {
 		this.send("Z");
 
 		String reply = this.recv();
@@ -230,6 +247,7 @@ public class TwoB implements EstimAPI{
 			this.serialPort.setComPortParameters(BAUD_RATE_HIGHSPEED, 8, SerialPort.ONE_STOP_BIT, SerialPort.NO_PARITY);
 		}
 
+		this.highSpeed = true;
 		return true;
 
 	}
@@ -242,10 +260,19 @@ public class TwoB implements EstimAPI{
 		for (String pair : pairs) {
 			int idx = pair.indexOf("=");
 			try {
-				query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8").split(","));
+				query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"),
+						URLDecoder.decode(pair.substring(idx + 1), "UTF-8").split(","));
+			} catch (StringIndexOutOfBoundsException e) {
+				try {
+					query_pairs.put(URLDecoder.decode(pair, "UTF-8"), new String[0]);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					return false;
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				return false;
+
 			}
 		}
 		return this.execute(query_pairs);
@@ -260,14 +287,14 @@ public class TwoB implements EstimAPI{
 
 		System.out.println(parameters);
 
-		for (String parameter: parameters.keySet()) {
+		for (String parameter : parameters.keySet()) {
 			String[] values = parameters.get(parameter);
 			switch (parameter) {
 			case "initDevice":
-				if ("true".equals(values[0]))
+				if ("true".equals(values.length == 1 ? values[0]: ""))
 					this.initDevice(true);
 				else {
-					this.initDevice(false);
+					this.initDevice();
 				}
 				break;
 			case "disconnectDevice":
@@ -275,7 +302,7 @@ public class TwoB implements EstimAPI{
 				break;
 			case "setMode":
 				error = true;
-				for (Mode mode: TwoBMode.values()) {
+				for (Mode mode : TwoBMode.values()) {
 					if (mode.toString().equals(values[0])) {
 						this.setMode(mode);
 						error = false;
