@@ -6,19 +6,23 @@ import com.fazecast.jSerialComm.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import estimAPI.Channel;
 import estimAPI.EstimAPI;
 import estimAPI.Mode;
 
 public class TwoB implements EstimAPI {
+	
+	private static final Logger LOGGER = Logger.getLogger(TwoB.class.getName());
+	private static final Level LOGGER_LEVEL = Level.WARNING;
 
 	private static final int BAUD_RATE = 9600;
 	private static final int BAUD_RATE_HIGHSPEED = 57600;
@@ -34,16 +38,18 @@ public class TwoB implements EstimAPI {
 	private boolean highSpeed = false;
 
 	public TwoB(String device) {
+		LOGGER.setLevel(LOGGER_LEVEL);
 		this.device = device;
 	}
 
 	public TwoB() {
+		LOGGER.setLevel(LOGGER_LEVEL);
 		if (System.getProperty("os.name").startsWith("Windows")) {
+			LOGGER.log(Level.INFO, "Windows detected");
 			this.device = WINDOWS_PATH;
-			System.out.println("Windows detected");
 		} else {
+			LOGGER.log(Level.INFO, "Linux detected");
 			this.device = LINUX_PATH;
-			System.out.println("Linux detected");
 		}
 	}
 
@@ -55,14 +61,14 @@ public class TwoB implements EstimAPI {
 	}
 
 	@Override
-	public boolean initDevice() { // HighSpeed Mode is available since version 2.110B
+	public boolean initDevice() {
 		return this.initDevice(this.highSpeed);
 	}
 
 	@Override
 	public boolean initDevice(boolean enableHighSpeed) { // HighSpeed Mode is available since version 2.110B
 		if (this.isInitialized()) {
-			System.out.println("Warning: TwoB is already initialized");
+			LOGGER.log(Level.WARNING, "TwoB is already initialized");
 			return true;
 		}
 
@@ -73,7 +79,7 @@ public class TwoB implements EstimAPI {
 		if (!this.serialPort.openPort()) {
 			this.serialPort.closePort();
 			if (!this.serialPort.openPort()) {
-				System.out.println("Warning: Cannot initialize serial port");
+				LOGGER.log(Level.WARNING, "Cannot initialize serial port");
 				return false;
 			}
 		}
@@ -100,7 +106,7 @@ public class TwoB implements EstimAPI {
 	@Override
 	public boolean disconnectDevice() {
 		if (!this.isInitialized()) {
-			System.out.println("Warning: TwoB is already initialized");
+			LOGGER.log(Level.WARNING, "TwoB is already disconnected");
 			return true;
 		}
 
@@ -189,7 +195,7 @@ public class TwoB implements EstimAPI {
 
 	private boolean sendCommand(String msg) {
 		if (!this.isInitialized()) {
-			System.out.println("Warning: TwoB is not initialized");
+			LOGGER.log(Level.WARNING, "TwoB is not initialized");
 			if (!this.initDevice(this.highSpeed))
 				return false;
 		}
@@ -203,10 +209,10 @@ public class TwoB implements EstimAPI {
 	private boolean send(String msg) {
 		msg += "\n\r";
 		try {
-			System.out.println("SENDING '" + msg + "'");
+			LOGGER.log(Level.FINER, "SENDING '" + msg + "'");
 			this.outStream.write(msg.getBytes("UTF-8"));
 			TimeUnit.MILLISECONDS.sleep(100);
-			System.out.println("SEND '" + msg + "'");
+			LOGGER.log(Level.FINER, "SEND '" + msg + "'");
 		} catch (IOException | InterruptedException e) {
 			e.printStackTrace();
 			return false;
@@ -218,11 +224,11 @@ public class TwoB implements EstimAPI {
 		String reply = "";
 		byte[] b = new byte[1000];
 		try {
-			System.out.println("RECEIVE");
+			LOGGER.log(Level.FINER, "RECEIVE");
 			this.inStream.read(b);
-			System.out.println("RECEIVED");
+			LOGGER.log(Level.FINER, "RECEIVED");
 			reply = new String(b);
-			System.out.println(reply);
+			LOGGER.log(Level.FINER, reply);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -254,7 +260,7 @@ public class TwoB implements EstimAPI {
 
 	@Override
 	public boolean execute(String command) {
-		System.out.println(command);
+		LOGGER.log(Level.FINE, command);
 		Map<String, String[]> query_pairs = new LinkedHashMap<String, String[]>();
 		String[] pairs = command.split("&");
 		for (String pair : pairs) {
@@ -266,10 +272,12 @@ public class TwoB implements EstimAPI {
 				try {
 					query_pairs.put(URLDecoder.decode(pair, "UTF-8"), new String[0]);
 				} catch (Exception e1) {
+					LOGGER.log(Level.SEVERE, command);
 					e1.printStackTrace();
 					return false;
 				}
 			} catch (Exception e) {
+				LOGGER.log(Level.SEVERE, command);
 				e.printStackTrace();
 				return false;
 
@@ -285,7 +293,7 @@ public class TwoB implements EstimAPI {
 		boolean error = false;
 		String answer = "";
 
-		System.out.println(parameters);
+		LOGGER.log(Level.FINE, parameters.toString());
 
 		for (String parameter : parameters.keySet()) {
 			String[] values = parameters.get(parameter);
@@ -358,7 +366,8 @@ public class TwoB implements EstimAPI {
 			}
 		}
 
-		System.out.println(answer);
+		// TODO Return answer
+		LOGGER.log(Level.INFO, answer);
 		return !error;
 	}
 }
