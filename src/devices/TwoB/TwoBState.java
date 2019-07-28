@@ -96,7 +96,12 @@ public class TwoBState implements estimAPI.State {
 		this.setMode(TwoBMode.values()[Integer.parseInt(replyArray[5])]);
 		this.setPower(replyArray[6]);
 		this.setJoinedChannels(Integer.parseInt(replyArray[7]));
-		this.setVersion(replyArray[8]);
+		if (replyArray.length == 10) {
+			// new format with additional field
+			this.setVersion(replyArray[9]);
+		} else {
+			this.setVersion(replyArray[8]);
+		}
 		return true;
 	}
 	
