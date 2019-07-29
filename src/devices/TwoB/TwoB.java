@@ -79,7 +79,7 @@ public class TwoB implements EstimAPI {
 		if (!this.serialPort.openPort()) {
 			this.serialPort.closePort();
 			if (!this.serialPort.openPort()) {
-				LOGGER.log(Level.WARNING, "Cannot initialize serial port");
+				LOGGER.log(Level.WARNING, "Cannot initialize serial port " + device);
 				return false;
 			}
 		}
@@ -190,6 +190,8 @@ public class TwoB implements EstimAPI {
 		for (Channel c : this.getState().getChannels()) {
 			channels.add(c);
 		}
+		// Force a state update to get the actual values of the channels
+		this.sendCommand("");
 		return channels;
 	}
 
