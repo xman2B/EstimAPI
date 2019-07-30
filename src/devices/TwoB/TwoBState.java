@@ -3,6 +3,7 @@ package devices.TwoB;
 import java.util.List;
 
 import estimAPI.Channel;
+import estimAPI.Map;
 import estimAPI.Mode;
 
 public class TwoBState implements estimAPI.State {
@@ -11,6 +12,7 @@ public class TwoBState implements estimAPI.State {
 	private int battery = -1;
 	private String power = "";
 	private int joinedChannels = -1;
+	private Map map = null;
 	private String version = "";
 
 	public TwoBState(Mode mode, List<TwoBChannel> channels, int battery, String power, int joinedChannels) {
@@ -46,6 +48,16 @@ public class TwoBState implements estimAPI.State {
 
 	private void setJoinedChannels(int joinedChannels) {
 		this.joinedChannels = joinedChannels;
+	}
+	
+	@Override
+	public Map getMap() {
+		return this.map;
+	}
+
+	private void setMap(Map map) {
+		this.map  = map;
+		
 	}
 	
 	@Override
@@ -96,12 +108,15 @@ public class TwoBState implements estimAPI.State {
 		this.setMode(TwoBMode.values()[Integer.parseInt(replyArray[5])]);
 		this.setPower(replyArray[6]);
 		this.setJoinedChannels(Integer.parseInt(replyArray[7]));
+		
 		if (replyArray.length == 10) {
-			// new format with additional field
+			// new format with additional map field
+			this.setMap(TwoBMap.values()[Integer.parseInt(replyArray[8])]);
 			this.setVersion(replyArray[9]);
 		} else {
 			this.setVersion(replyArray[8]);
 		}
+		
 		return true;
 	}
 	

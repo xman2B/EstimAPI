@@ -35,4 +35,9 @@ public interface State {
 	 */
 	public int getJoinedChannels();
 	
+	/**
+	 * Get the used map
+	 */
+	public Map getMap();
+	
 }
