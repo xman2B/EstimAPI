@@ -34,7 +34,7 @@ public class TwoB implements EstimAPI {
 	private InputStream inStream = null;
 	private OutputStream outStream = null;
 
-	private TwoBState state = null;
+	private TwoBState state = new TwoBState(TwoBMode.PULSE, -1, "error", -1);
 	private boolean highSpeed = false;
 
 	public TwoB(String device) {
@@ -86,15 +86,6 @@ public class TwoB implements EstimAPI {
 		this.outStream = this.serialPort.getOutputStream();
 		this.inStream = this.serialPort.getInputStream();
 
-		// Sets the initial State for the 2B
-		List<TwoBChannel> channels = new ArrayList<TwoBChannel>();
-		channels.add(TwoBChannel.A);
-		channels.add(TwoBChannel.B);
-		channels.add(TwoBChannel.C);
-		channels.add(TwoBChannel.D);
-
-		this.state = new TwoBState(TwoBMode.PULSE, channels, -1, "error", -1);
-
 		if (enableHighSpeed) {
 			this.enableHighSpeedState();
 		}
@@ -121,6 +112,9 @@ public class TwoB implements EstimAPI {
 		this.outStream = null;
 		this.serialPort.closePort();
 		this.serialPort = null;
+		
+		// Reset state
+		this.state = new TwoBState(TwoBMode.PULSE, -1, "error", -1);
 
 		return true;
 	}

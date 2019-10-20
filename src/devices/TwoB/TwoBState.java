@@ -1,5 +1,6 @@
 package devices.TwoB;
 
+import java.util.Arrays;
 import java.util.List;
 
 import estimAPI.Channel;
@@ -8,16 +9,15 @@ import estimAPI.Mode;
 
 public class TwoBState implements estimAPI.State {
 	private Mode mode = null;
-	private List<TwoBChannel> channels = null;
+	private List<TwoBChannel> channels = Arrays.asList(TwoBChannel.A, TwoBChannel.B, TwoBChannel.C, TwoBChannel.D);
 	private int battery = -1;
 	private String power = "";
 	private int joinedChannels = -1;
 	private Map map = null;
 	private String version = "";
 
-	public TwoBState(Mode mode, List<TwoBChannel> channels, int battery, String power, int joinedChannels) {
+	public TwoBState(Mode mode, int battery, String power, int joinedChannels) {
 		this.mode = mode;
-		this.channels = channels;
 		this.battery = battery;
 		this.power = power;
 		this.joinedChannels = joinedChannels;
