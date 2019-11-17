@@ -3,3 +3,8 @@ target/**
 
 # IntelliJ IDEA
 .idea
+
+# Eclipse
+.settings
+.classpath
+.project
